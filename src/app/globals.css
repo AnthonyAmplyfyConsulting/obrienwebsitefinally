@@ -1,0 +1,301 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --green: #1a5c2e;
+    --green-light: #2d7a3f;
+    --green-pale: #f0f7f2;
+    --off-white: #fafaf8;
+    --warm-white: #ffffff;
+    --stone: #f5f4f0;
+    --charcoal: #1a1a18;
+    --mid-gray: #4a4a47;
+    --light-gray: #9a9a96;
+    --border: #e8e8e4;
+  }
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-body), 'Jost', 'Inter', system-ui, sans-serif;
+  background: #ffffff;
+  color: #1a1a18;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+/* ───────────────────────────────── NAV ───────────────────────────────── */
+.nav-logo {
+  transition: opacity 0.3s ease;
+}
+.nav-logo:hover {
+  opacity: 0.85;
+}
+
+/* Hamburger Bars */
+.hamburger-bar {
+  display: block;
+  width: 28px;
+  height: 1.5px;
+  background: #ffffff;
+  transition: transform 0.45s cubic-bezier(0.23, 1, 0.32, 1),
+              opacity 0.3s ease,
+              width 0.3s ease;
+  transform-origin: center;
+}
+.hamburger-bar.dark {
+  background: #1a1a18;
+}
+.hamburger-open .bar-top {
+  transform: rotate(45deg) translate(5px, 5px);
+}
+.hamburger-open .bar-mid {
+  opacity: 0;
+  transform: scaleX(0);
+}
+.hamburger-open .bar-bot {
+  transform: rotate(-45deg) translate(5px, -5px);
+}
+
+/* ───────────────────────────────── HERO ───────────────────────────────── */
+.hero-video-overlay {
+  background: linear-gradient(
+    to bottom,
+    rgba(0,0,0,0.15) 0%,
+    rgba(0,0,0,0.05) 40%,
+    rgba(0,0,0,0.45) 100%
+  );
+}
+
+/* ───────────────────────────────── SERVICE CARDS ───────────────────────────────── */
+.service-card {
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  aspect-ratio: 9 / 16;
+}
+
+.service-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.85s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.service-card:hover img {
+  transform: scale(1.06);
+}
+
+.service-card-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to top,
+    rgba(0,0,0,0.72) 0%,
+    rgba(0,0,0,0.18) 45%,
+    transparent 100%
+  );
+  transition: opacity 0.3s ease;
+}
+
+.service-card-label {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  padding: 1.25rem 1.25rem 1.5rem;
+  text-align: right;
+}
+
+/* ───────────────────────────────── STATEMENT SECTION ───────────────────────────────── */
+.statement-section {
+  position: relative;
+  height: 70vh;
+  min-height: 500px;
+  overflow: hidden;
+}
+
+.statement-section img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.statement-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(0,0,0,0.25) 0%,
+    rgba(0,0,0,0.08) 40%,
+    rgba(0,0,0,0.55) 100%
+  );
+}
+
+/* ───────────────────────────────── MODAL ───────────────────────────────── */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 10, 8, 0.75);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.modal-content {
+  background: #ffffff;
+  max-width: 640px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+}
+
+/* ───────────────────────────────── MOBILE MENU ───────────────────────────────── */
+.mobile-menu {
+  position: fixed;
+  inset: 0;
+  background: #ffffff;
+  z-index: 150;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 2rem;
+}
+
+/* ───────────────────────────────── UTILITIES ───────────────────────────────── */
+.section-eyebrow {
+  display: inline-block;
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--green);
+  margin-bottom: 1rem;
+}
+
+.btn-primary {
+  display: inline-block;
+  background: var(--green);
+  color: #ffffff;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding: 0.9rem 2.25rem;
+  transition: background 0.25s ease, transform 0.2s ease;
+  cursor: pointer;
+  border: none;
+  text-decoration: none;
+}
+
+.btn-primary:hover {
+  background: var(--green-light);
+  transform: translateY(-1px);
+}
+
+.btn-outline {
+  display: inline-block;
+  background: transparent;
+  color: var(--green);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding: 0.9rem 2.25rem;
+  border: 1.5px solid var(--green);
+  transition: all 0.25s ease;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.btn-outline:hover {
+  background: var(--green);
+  color: #ffffff;
+}
+
+.divider {
+  width: 2.5rem;
+  height: 1.5px;
+  background: var(--green);
+  margin: 1.25rem 0;
+}
+
+/* Form inputs */
+.form-input {
+  width: 100%;
+  border: none;
+  border-bottom: 1.5px solid #d4d4d0;
+  background: transparent;
+  padding: 0.85rem 0;
+  font-size: 0.875rem;
+  color: #1a1a18;
+  outline: none;
+  transition: border-color 0.25s ease;
+  font-family: inherit;
+}
+
+.form-input::placeholder {
+  color: #a0a09c;
+  font-size: 0.8rem;
+  letter-spacing: 0.04em;
+}
+
+.form-input:focus {
+  border-color: var(--green);
+}
+
+select.form-input {
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%231a5c2e' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.5rem center;
+  padding-right: 1.5rem;
+}
+
+/* FAQ accordion */
+.faq-item {
+  border-bottom: 1px solid #e8e8e4;
+}
+
+.faq-question {
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  padding: 1.5rem 0;
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #1a1a18;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  transition: color 0.2s ease;
+}
+
+.faq-question:hover {
+  color: var(--green);
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #f5f5f3; }
+::-webkit-scrollbar-thumb { background: #c8c8c4; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #1a5c2e; }

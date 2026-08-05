@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 120" width="500" height="120" fill="none">
+  <defs>
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#C59B27" />
+      <stop offset="50%" stop-color="#EAB308" />
+      <stop offset="100%" stop-color="#84CC16" />
+    </linearGradient>
+    <linearGradient id="woodAccent" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#1E293B" />
+      <stop offset="100%" stop-color="#0F172A" />
+    </linearGradient>
+  </defs>
+
+  <!-- Luxury Monogram Emblem Mark -->
+  <g transform="translate(10, 10)">
+    <!-- Hexagonal Crest / Plank Frame -->
+    <path d="M50 5 L90 27.5 L90 72.5 L50 95 L10 72.5 L10 27.5 Z" fill="none" stroke="url(#goldGrad)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <!-- Hardwood Plank Details inside Emblem -->
+    <path d="M30 30 L70 30" stroke="#94A3B8" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/>
+    <path d="M25 50 L75 50" stroke="url(#goldGrad)" stroke-width="2" stroke-linecap="round"/>
+    <path d="M30 70 L70 70" stroke="#94A3B8" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/>
+    <!-- Center Clover / O'B Initial -->
+    <text x="50" y="58" font-family="'Playfair Display', 'Georgia', serif" font-size="34" font-weight="700" fill="#0F172A" text-anchor="middle">O'B</text>
+  </g>
+
+  <!-- Brand Typography -->
+  <g transform="translate(115, 30)">
+    <text x="0" y="32" font-family="'Plus Jakarta Sans', 'Outfit', sans-serif" font-size="32" font-weight="800" letter-spacing="3" fill="#0F172A">
+      O'BRIEN
+    </text>
+    <text x="0" y="60" font-family="'Plus Jakarta Sans', 'Inter', sans-serif" font-size="16" font-weight="600" letter-spacing="7" fill="#64748B">
+      FLOORING
+    </text>
+    <!-- Tagline & Established -->
+    <text x="0" y="78" font-family="'Playfair Display', serif" font-style="italic" font-size="12" fill="#94A3B8" letter-spacing="1">
+      Hardwood Specialists • Est. 2004
+    </text>
+  </g>
+</svg>
