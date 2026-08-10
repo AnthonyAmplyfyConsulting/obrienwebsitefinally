@@ -12,6 +12,7 @@ interface Service {
   shortDesc: string;
   fullDesc: string;
   image: string;
+  imagePosition?: string;
   details: string[];
 }
 
@@ -29,14 +30,31 @@ const SERVICES: Service[] = [
     title: "Sanding & Refinishing",
     shortDesc: "Restore & Revive",
     fullDesc:
-      "Dull, scratched, or worn floors restored to their original brilliance. Our dustless sanding system removes the old finish while protecting your home's air quality. We then apply custom stain colors and multiple coats of premium finish for a lasting result.",
-    image: "/flooring-1.png",
+      "We bring worn, dull, or scratched hardwood back to life. Our work includes historic heartpine floors refinished to a mirror gloss, staircase treads stripped and restained, and everything in between. Dustless sanding technology protects your home while we apply custom stain colors and multiple coats of premium finish.",
+    image: "/heartpine-refinishing.png",
+    imagePosition: "72% 50%",
     details: [
       "Dustless sanding technology",
       "Custom stain color matching",
       "Oil-based & water-based finishes",
-      "Staircase & tread refinishing",
+      "Historic heartpine & pine restoration",
       "Spot sanding for targeted repairs",
+    ],
+  },
+  {
+    id: "staircase-refinishing",
+    title: "Staircase Refinishing",
+    shortDesc: "Step Up",
+    fullDesc:
+      "Your staircase is the centerpiece of your home. We remove old carpet and tack strips, prep and sand each tread down to bare wood, then apply a rich custom stain and durable finish coat — transforming an eyesore into a showstopper.",
+    image: "/stairs-after.png",
+    imagePosition: "68% 52%",
+    details: [
+      "Full carpet & tack strip removal",
+      "Individual tread sanding & prep",
+      "Custom stain color selection",
+      "Durable polyurethane top coat",
+      "Risers painted or stained to match",
     ],
   },
   {
@@ -44,12 +62,13 @@ const SERVICES: Service[] = [
     title: "Floor Installation",
     shortDesc: "New Beginnings",
     fullDesc:
-      "Transform any space with premium hardwood. From solid planks to engineered wood, we handle every detail — subfloor preparation, moisture barriers, precision fitting, and seamless transitions between rooms.",
-    image: "/flooring-2.png",
+      "Transform any space with premium hardwood. We handle full subfloor teardown of damaged boards, moisture barrier installation, and precision fitting of new solid hardwood — leaving your floors as clean and smooth as the day the house was built.",
+    image: "/hardwood-after.png",
+    imagePosition: "72% 48%",
     details: [
       "Solid & engineered hardwood",
+      "Full damaged-board teardown",
       "Subfloor leveling & preparation",
-      "Herringbone & chevron patterns",
       "Custom border & inlay layouts",
       "Threshold & transition molding",
     ],
@@ -59,8 +78,9 @@ const SERVICES: Service[] = [
     title: "Repairs & Restoration",
     shortDesc: "Renewed Strength",
     fullDesc:
-      "From pet damage and deep scratches to water-damaged boards and squeaky subfloors — we restore your floors with seamless precision. We source matching wood species and blend stains to make the repair virtually invisible.",
-    image: "/flooring-3.png",
+      "From burst pipes to pet damage and deep scratches — we seamlessly restore your floors. We source matching wood species and blend stains on-site to make the repair virtually invisible, even on 60+ year old floors.",
+    image: "/hardwood-before.png",
+    imagePosition: "60% 48%",
     details: [
       "Individual board replacement",
       "Water & moisture damage repair",
@@ -70,33 +90,19 @@ const SERVICES: Service[] = [
     ],
   },
   {
-    id: "custom-inlays",
-    title: "Custom Inlays",
-    shortDesc: "Artisan Details",
-    fullDesc:
-      "Elevate your floors into architectural statements. Hand-crafted medallions, decorative borders, and contrasting species inlays create focal points that define the character of a room and set your space apart.",
-    image: "/flooring-4.png",
-    details: [
-      "Hardwood medallion designs",
-      "Decorative border framing",
-      "Contrasting wood species",
-      "Custom geometric patterns",
-      "Bespoke artistic installations",
-    ],
-  },
-  {
     id: "commercial",
     title: "Commercial Flooring",
     shortDesc: "Professional Scale",
     fullDesc:
-      "We bring the same craftsmanship and care to commercial environments — offices, retail spaces, restaurants, and hospitality venues. Durable, beautiful floors that make a strong first impression on every visitor.",
-    image: "/flooring-5.png",
+      "We bring the same craftsmanship to commercial spaces — factories, offices, retail storefronts, and more. Our work at local commercial facilities demonstrates the durability and shine we achieve even on high-traffic hardwood floors.",
+    image: "/commercial-factory-1.png",
+    imagePosition: "68% 42%",
     details: [
       "High-traffic hardwood solutions",
       "Commercial-grade finishes",
       "Minimal disruption scheduling",
-      "Large-scale installation",
-      "Maintenance program available",
+      "Large-scale installation & refinishing",
+      "Historic building restoration",
     ],
   },
 ];
@@ -163,6 +169,12 @@ export default function Home() {
     sms: false,
   });
   const [formSent, setFormSent] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [activeWorkTab, setActiveWorkTab] = useState('staircase');
+  const [staircaseSlider, setStaircaseSlider] = useState(50);
+  const [hardwoodSlider, setHardwoodSlider] = useState(50);
+  const staircaseContainerRef = useRef<HTMLDivElement>(null);
+  const hardwoodContainerRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
 
   // Lock scroll when modals open
@@ -171,12 +183,56 @@ export default function Home() {
     return () => { document.body.style.overflow = ""; };
   }, [menuOpen, activeService]);
 
-  const handleFormSubmit = (e: React.FormEvent) => {
+  const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setFormSent(true);
+    setIsSubmitting(true);
+    const payload = {
+      ...formState,
+      submittedAt: new Date().toISOString(),
+    };
+    const webhookUrl = "https://amplyfyconsulting.app.n8n.cloud/webhook/79403a23-57b2-496e-8cdf-d5128f74bfd0";
+
+    try {
+      // Attempt POST submission first
+      const res = await fetch(webhookUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+
+      // Fallback to GET if n8n webhook node is configured for GET requests
+      if (!res.ok && res.status === 404) {
+        const text = await res.text();
+        if (text.includes("GET request")) {
+          const queryParams = new URLSearchParams({
+            name: formState.name,
+            phone: formState.phone,
+            email: formState.email,
+            service: formState.service,
+            details: formState.details,
+            sms: String(formState.sms),
+            submittedAt: payload.submittedAt,
+          }).toString();
+          await fetch(`${webhookUrl}?${queryParams}`, { method: "GET" });
+        }
+      }
+    } catch (err) {
+      console.error("Error sending form data to webhook:", err);
+    } finally {
+      setIsSubmitting(false);
+      setFormSent(true);
+    }
   };
 
-  const navLinks = ["Services", "About", "Reviews", "Contact"];
+  const navLinks = [
+    { label: "Services", href: "#services" },
+    { label: "Our Work", href: "#our-work" },
+    { label: "About", href: "#about" },
+    { label: "Reviews", href: "#reviews" },
+    { label: "Contact", href: "#contact" },
+  ];
 
   return (
     <>
@@ -296,8 +352,8 @@ export default function Home() {
             <nav>
               {navLinks.map((link, i) => (
                 <motion.a
-                  key={link}
-                  href={`#${link.toLowerCase()}`}
+                  key={link.label}
+                  href={link.href}
                   onClick={() => setMenuOpen(false)}
                   className="block"
                   style={{
@@ -316,7 +372,7 @@ export default function Home() {
                   transition={{ delay: 0.1 + i * 0.08, duration: 0.4 }}
                   whileHover={{ x: 8, color: "#1a5c2e" }}
                 >
-                  {link}
+                  {link.label}
                 </motion.a>
               ))}
             </nav>
@@ -457,8 +513,10 @@ export default function Home() {
                     alt={service.title}
                     fill
                     sizes="(max-width: 768px) 100vw, 20vw"
-                    style={{ objectFit: "cover" }}
+                    style={{ objectFit: "cover", objectPosition: service.imagePosition || "center" }}
                   />
+                  {/* Top gradient to mask any baked-in watermarks */}
+                  <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(0,0,0,0.38) 0%, transparent 35%)" }} />
                   <div className="service-card-overlay" />
                   <div className="service-card-label">
                     <p
@@ -770,8 +828,8 @@ export default function Home() {
               }}
             >
               <Image
-                src="/flooring-5.png"
-                alt="O'Brien Flooring craftsmanship"
+                src="/heartpine-refinishing.png"
+                alt="O'Brien Flooring craftsmanship — heartpine refinishing"
                 fill
                 sizes="50vw"
                 style={{ objectFit: "cover" }}
@@ -783,8 +841,8 @@ export default function Home() {
         {/* ──────────────── STATEMENT FULL-BLEED ──────────────── */}
         <section className="statement-section">
           <Image
-            src="/flooring-1.png"
-            alt="Hardwood flooring statement"
+            src="/commercial-factory-2.png"
+            alt="O'Brien Flooring commercial refinishing"
             fill
             sizes="100vw"
             style={{ objectFit: "cover" }}
@@ -827,6 +885,195 @@ export default function Home() {
               }}
             />
           </motion.div>
+        </section>
+
+        {/* ──────────────── OUR WORK ──────────────── */}
+        <section
+          id="our-work"
+          style={{
+            background: "#fafaf8",
+            padding: "6rem 0",
+          }}
+        >
+          <div style={{ maxWidth: "1400px", margin: "0 auto", padding: "0 1.5rem" }}>
+
+            {/* Header */}
+            <div style={{ marginBottom: "2.5rem" }}>
+              <span className="section-eyebrow">Portfolio</span>
+              <div className="divider" />
+              <h2 style={{ fontSize: "clamp(1.75rem, 3vw, 2.5rem)", fontWeight: 300, letterSpacing: "-0.02em", color: "#1a1a18", lineHeight: 1.2, maxWidth: "30rem" }}>
+                Real results from real projects.
+              </h2>
+            </div>
+
+            {/* Tab navigation */}
+            <div style={{ display: "flex", borderBottom: "1px solid #e8e8e4", marginBottom: "0", overflowX: "auto" }}>
+              {[
+                { id: "staircase", label: "Staircase" },
+                { id: "hardwood", label: "Hardwood Floor" },
+                { id: "heartpine", label: "Heartpine" },
+                { id: "commercial", label: "Commercial" },
+              ].map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveWorkTab(tab.id)}
+                  style={{
+                    background: "none",
+                    border: "none",
+                    borderBottom: activeWorkTab === tab.id ? "2px solid #1a5c2e" : "2px solid transparent",
+                    marginBottom: "-1px",
+                    color: activeWorkTab === tab.id ? "#1a1a18" : "#9a9a96",
+                    fontSize: "0.68rem",
+                    letterSpacing: "0.16em",
+                    textTransform: "uppercase",
+                    fontWeight: 600,
+                    padding: "0.85rem 1.75rem",
+                    cursor: "pointer",
+                    transition: "all 0.2s ease",
+                    whiteSpace: "nowrap",
+                    fontFamily: "inherit",
+                  }}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+
+            {/* ── STAIRCASE TAB ── */}
+            {activeWorkTab === "staircase" && (
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.35 }}>
+                {/* Before/After comparison slider */}
+                <div
+                  ref={staircaseContainerRef}
+                  style={{ position: "relative", height: "580px", overflow: "hidden", cursor: "col-resize", userSelect: "none", touchAction: "none" }}
+                >
+                  {/* BEFORE image — base layer */}
+                  <div style={{ position: "absolute", inset: 0 }}>
+                    <Image src="/stairs-before.png" alt="Staircase before" fill sizes="100vw" style={{ objectFit: "cover", objectPosition: "50% 50%" }} />
+                  </div>
+                  {/* AFTER image — clipped to right of handle */}
+                  <div style={{ position: "absolute", inset: 0, clipPath: `inset(0 0 0 ${staircaseSlider}%)` }}>
+                    <Image src="/stairs-after.png" alt="Staircase after" fill sizes="100vw" style={{ objectFit: "cover", objectPosition: "50% 50%" }} />
+                  </div>
+                  {/* Divider line */}
+                  <div style={{ position: "absolute", top: 0, bottom: 0, left: `${staircaseSlider}%`, width: "2px", background: "#ffffff", transform: "translateX(-50%)", zIndex: 10, pointerEvents: "none" }} />
+                  {/* Drag handle */}
+                  <div
+                    style={{ position: "absolute", top: "50%", left: `${staircaseSlider}%`, transform: "translate(-50%, -50%)", width: "46px", height: "46px", borderRadius: "50%", background: "#ffffff", boxShadow: "0 2px 20px rgba(0,0,0,0.4)", zIndex: 11, display: "flex", alignItems: "center", justifyContent: "center", cursor: "col-resize", touchAction: "none" }}
+                    onPointerDown={(e) => {
+                      e.preventDefault();
+                      (e.currentTarget as HTMLDivElement).setPointerCapture(e.pointerId);
+                      (e.currentTarget as HTMLDivElement).onpointermove = (me) => {
+                        if (!staircaseContainerRef.current) return;
+                        const rect = staircaseContainerRef.current.getBoundingClientRect();
+                        const x = Math.max(2, Math.min(me.clientX - rect.left, rect.width - 2));
+                        setStaircaseSlider(Math.round((x / rect.width) * 100));
+                      };
+                      (e.currentTarget as HTMLDivElement).onpointerup = (ue) => {
+                        (ue.currentTarget as HTMLDivElement).onpointermove = null;
+                        (ue.currentTarget as HTMLDivElement).onpointerup = null;
+                      };
+                    }}
+                  >
+                    <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+                      <path d="M8 4L3 11l5 7M14 4l5 7-5 7" stroke="#1a5c2e" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </div>
+                  {/* BEFORE label */}
+                  <div style={{ position: "absolute", bottom: "1.5rem", left: "1.5rem", background: "rgba(0,0,0,0.5)", backdropFilter: "blur(6px)", border: "1px solid rgba(255,255,255,0.2)", color: "#ffffff", fontSize: "0.6rem", letterSpacing: "0.18em", textTransform: "uppercase", padding: "0.3rem 0.8rem", borderRadius: "2px", zIndex: 5, pointerEvents: "none" }}>Before</div>
+                  {/* AFTER label */}
+                  <div style={{ position: "absolute", bottom: "1.5rem", right: "1.5rem", background: "rgba(26,92,46,0.75)", backdropFilter: "blur(6px)", border: "1px solid rgba(26,92,46,0.4)", color: "#ffffff", fontSize: "0.6rem", letterSpacing: "0.18em", textTransform: "uppercase", padding: "0.3rem 0.8rem", borderRadius: "2px", zIndex: 5, pointerEvents: "none" }}>After</div>
+                  {/* Drag hint */}
+                  <div style={{ position: "absolute", top: "1.25rem", left: "50%", transform: "translateX(-50%)", background: "rgba(0,0,0,0.45)", backdropFilter: "blur(4px)", color: "rgba(255,255,255,0.9)", fontSize: "0.58rem", letterSpacing: "0.16em", textTransform: "uppercase", padding: "0.3rem 0.9rem", borderRadius: "2px", zIndex: 5, whiteSpace: "nowrap", pointerEvents: "none" }}>← Drag to compare →</div>
+                </div>
+                <div style={{ padding: "2rem 0 0" }}>
+                  <h3 style={{ fontSize: "1.05rem", fontWeight: 500, color: "#1a1a18", marginBottom: "0.5rem", letterSpacing: "-0.01em" }}>Staircase Refinishing</h3>
+                  <p style={{ fontSize: "0.875rem", color: "#4a4a47", lineHeight: 1.8, maxWidth: "640px" }}>Full carpet removal, individual tread sanding, and a rich custom oak stain — transforming a dated staircase into the centerpiece of the home.</p>
+                </div>
+              </motion.div>
+            )}
+
+            {/* ── HARDWOOD FLOOR TAB ── */}
+            {activeWorkTab === "hardwood" && (
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.35 }}>
+                <div
+                  ref={hardwoodContainerRef}
+                  style={{ position: "relative", height: "580px", overflow: "hidden", cursor: "col-resize", userSelect: "none", touchAction: "none" }}
+                >
+                  <div style={{ position: "absolute", inset: 0 }}>
+                    <Image src="/hardwood-before.png" alt="Hardwood before" fill sizes="100vw" style={{ objectFit: "cover", objectPosition: "50% 50%" }} />
+                  </div>
+                  <div style={{ position: "absolute", inset: 0, clipPath: `inset(0 0 0 ${hardwoodSlider}%)` }}>
+                    <Image src="/hardwood-after.png" alt="Hardwood after" fill sizes="100vw" style={{ objectFit: "cover", objectPosition: "50% 50%" }} />
+                  </div>
+                  <div style={{ position: "absolute", top: 0, bottom: 0, left: `${hardwoodSlider}%`, width: "2px", background: "#ffffff", transform: "translateX(-50%)", zIndex: 10, pointerEvents: "none" }} />
+                  <div
+                    style={{ position: "absolute", top: "50%", left: `${hardwoodSlider}%`, transform: "translate(-50%, -50%)", width: "46px", height: "46px", borderRadius: "50%", background: "#ffffff", boxShadow: "0 2px 20px rgba(0,0,0,0.4)", zIndex: 11, display: "flex", alignItems: "center", justifyContent: "center", cursor: "col-resize", touchAction: "none" }}
+                    onPointerDown={(e) => {
+                      e.preventDefault();
+                      (e.currentTarget as HTMLDivElement).setPointerCapture(e.pointerId);
+                      (e.currentTarget as HTMLDivElement).onpointermove = (me) => {
+                        if (!hardwoodContainerRef.current) return;
+                        const rect = hardwoodContainerRef.current.getBoundingClientRect();
+                        const x = Math.max(2, Math.min(me.clientX - rect.left, rect.width - 2));
+                        setHardwoodSlider(Math.round((x / rect.width) * 100));
+                      };
+                      (e.currentTarget as HTMLDivElement).onpointerup = (ue) => {
+                        (ue.currentTarget as HTMLDivElement).onpointermove = null;
+                        (ue.currentTarget as HTMLDivElement).onpointerup = null;
+                      };
+                    }}
+                  >
+                    <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+                      <path d="M8 4L3 11l5 7M14 4l5 7-5 7" stroke="#1a5c2e" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </div>
+                  <div style={{ position: "absolute", bottom: "1.5rem", left: "1.5rem", background: "rgba(0,0,0,0.5)", backdropFilter: "blur(6px)", border: "1px solid rgba(255,255,255,0.2)", color: "#ffffff", fontSize: "0.6rem", letterSpacing: "0.18em", textTransform: "uppercase", padding: "0.3rem 0.8rem", borderRadius: "2px", zIndex: 5, pointerEvents: "none" }}>Before</div>
+                  <div style={{ position: "absolute", bottom: "1.5rem", right: "1.5rem", background: "rgba(26,92,46,0.75)", backdropFilter: "blur(6px)", border: "1px solid rgba(26,92,46,0.4)", color: "#ffffff", fontSize: "0.6rem", letterSpacing: "0.18em", textTransform: "uppercase", padding: "0.3rem 0.8rem", borderRadius: "2px", zIndex: 5, pointerEvents: "none" }}>After</div>
+                  <div style={{ position: "absolute", top: "1.25rem", left: "50%", transform: "translateX(-50%)", background: "rgba(0,0,0,0.45)", backdropFilter: "blur(4px)", color: "rgba(255,255,255,0.9)", fontSize: "0.58rem", letterSpacing: "0.16em", textTransform: "uppercase", padding: "0.3rem 0.9rem", borderRadius: "2px", zIndex: 5, whiteSpace: "nowrap", pointerEvents: "none" }}>← Drag to compare →</div>
+                </div>
+                <div style={{ padding: "2rem 0 0" }}>
+                  <h3 style={{ fontSize: "1.05rem", fontWeight: 500, color: "#1a1a18", marginBottom: "0.5rem", letterSpacing: "-0.01em" }}>Hardwood Floor Installation</h3>
+                  <p style={{ fontSize: "0.875rem", color: "#4a4a47", lineHeight: 1.8, maxWidth: "640px" }}>Water-damaged boards torn out, subfloor prepped, and fresh solid white oak laid throughout — clean, solid, and ready to be finished.</p>
+                </div>
+              </motion.div>
+            )}
+
+            {/* ── HEARTPINE TAB ── */}
+            {activeWorkTab === "heartpine" && (
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.35 }}>
+                <div style={{ position: "relative", height: "580px", overflow: "hidden" }}>
+                  <Image src="/heartpine-refinishing.png" alt="Heartpine flooring refinishing" fill sizes="100vw" style={{ objectFit: "cover", objectPosition: "center 50%" }} />
+                  <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(0,0,0,0.35) 0%, transparent 30%, transparent 70%, rgba(0,0,0,0.45) 100%)" }} />
+                </div>
+                <div style={{ padding: "2rem 0 0" }}>
+                  <h3 style={{ fontSize: "1.05rem", fontWeight: 500, color: "#1a1a18", marginBottom: "0.5rem", letterSpacing: "-0.01em" }}>Heartpine Flooring Refinishing</h3>
+                  <p style={{ fontSize: "0.875rem", color: "#4a4a47", lineHeight: 1.8, maxWidth: "640px" }}>Historic heartpine floors stripped and refinished to a mirror gloss — revealing the deep amber character of the original wood that had been hidden for decades.</p>
+                </div>
+              </motion.div>
+            )}
+
+            {/* ── COMMERCIAL TAB ── */}
+            {activeWorkTab === "commercial" && (
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.35 }}>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1px", background: "#e8e8e4", height: "580px" }} className="our-work-row">
+                  <div style={{ position: "relative", overflow: "hidden" }}>
+                    <Image src="/commercial-factory-1.png" alt="Commercial factory floor 1" fill sizes="50vw" style={{ objectFit: "cover", objectPosition: "center 42%" }} />
+                    <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(0,0,0,0.35) 0%, transparent 30%, transparent 70%, rgba(0,0,0,0.45) 100%)" }} />
+                  </div>
+                  <div style={{ position: "relative", overflow: "hidden" }}>
+                    <Image src="/commercial-factory-2.png" alt="Commercial factory floor 2" fill sizes="50vw" style={{ objectFit: "cover", objectPosition: "center 42%" }} />
+                    <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(0,0,0,0.35) 0%, transparent 30%, transparent 70%, rgba(0,0,0,0.45) 100%)" }} />
+                  </div>
+                </div>
+                <div style={{ padding: "2rem 0 0" }}>
+                  <h3 style={{ fontSize: "1.05rem", fontWeight: 500, color: "#1a1a18", marginBottom: "0.5rem", letterSpacing: "-0.01em" }}>Local Commercial Factory</h3>
+                  <p style={{ fontSize: "0.875rem", color: "#4a4a47", lineHeight: 1.8, maxWidth: "640px" }}>High-traffic hardwood floors in a local commercial factory — refinished to a brilliant gloss. Same craftsmanship, scaled for professional environments.</p>
+                </div>
+              </motion.div>
+            )}
+
+          </div>
         </section>
 
         {/* ──────────────── REVIEWS ──────────────── */}
@@ -1223,8 +1470,16 @@ export default function Home() {
 
                   {/* Submit */}
                   <div style={{ gridColumn: "1 / -1" }}>
-                    <button type="submit" className="btn-primary">
-                      Submit Request
+                    <button
+                      type="submit"
+                      className="btn-primary"
+                      disabled={isSubmitting}
+                      style={{
+                        opacity: isSubmitting ? 0.7 : 1,
+                        cursor: isSubmitting ? "wait" : "pointer",
+                      }}
+                    >
+                      {isSubmitting ? "Sending..." : "Submit Request"}
                     </button>
                   </div>
                 </div>
@@ -1510,6 +1765,12 @@ export default function Home() {
           .footer-grid {
             grid-template-columns: 1fr !important;
             gap: 2rem !important;
+          }
+          .our-work-row {
+            grid-template-columns: 1fr !important;
+          }
+          .our-work-row > div {
+            height: 300px !important;
           }
         }
 
